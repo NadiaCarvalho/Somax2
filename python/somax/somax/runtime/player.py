@@ -258,6 +258,7 @@ class Player(Parametric, ContentAware):
         self._force_jump_index = index
 
     def read_corpus(self, corpus: Optional[Corpus]) -> None:
+
         self.set_eligibility(corpus)
         self._update_transforms()
 

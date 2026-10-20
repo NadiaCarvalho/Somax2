@@ -63,8 +63,11 @@ class MaxPeakSelector(AbstractPeakSelector):
             return None
         max_peak_value: float = np.max(peaks.scores)
         self.logger.debug(f"[decide_default] Max peak value is {max_peak_value}.")
-        max_peaks_idx: List[int] = np.argwhere(np.abs(peaks.scores - max_peak_value) < 0.001)
-        peak_idx: int = random.choice(max_peaks_idx)
+        max_peaks_idx: np.ndarray = np.argwhere(np.abs(peaks.scores - max_peak_value) < 0.001)
+        # Flatten/safely extract a scalar index to prevent 1D/multi-dimensional conversion errors
+        flat_indices = max_peaks_idx.flatten()
+        peak_idx: int = int(random.choice(flat_indices)) if flat_indices.size > 0 else 0
+
         transform_hash: int = int(peaks.transform_ids[peak_idx])
         return corpus.event_around(peaks.times[peak_idx]), transform_handler.get_transform(transform_hash)
 

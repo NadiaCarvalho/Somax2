@@ -3,6 +3,8 @@ import numpy as np
 import torch
 import librosa
 
+import warnings
+
 from somax.corpus_builder.metadata import Metadata, AudioMetadata
 from somax.features.feature import AnalyzableFeature, CorpusFeature
 from somax.runtime.corpus_event import CorpusEvent, AudioCorpusEvent
@@ -25,6 +27,9 @@ class BaseLatentFeature(AnalyzableFeature):
             if cls.MODEL_PATH is None:
                 raise FeatureError(f"No TorchScript model path configured for {cls.__name__}")
             try:
+                warnings.filterwarnings(
+                    "ignore", category=FutureWarning, module="torch.jit"
+                )
                 cls._model = torch.jit.load(cls.MODEL_PATH, map_location="cpu")
                 cls._model.eval()
             except Exception as e:
@@ -54,7 +59,17 @@ class BaseLatentFeature(AnalyzableFeature):
                     z_mean = np.zeros(16, dtype=np.float32)
                 else:
                     tensor_in = torch.from_numpy(slice_audio).float().reshape(1, 1, -1)
-                    z = model.encode(tensor_in)
+
+                    if hasattr(model, 'encode') and callable(getattr(model, 'encode')):
+                        z = model.encode(tensor_in)
+                    elif hasattr(model, 'ae_encode') and callable(getattr(model, 'ae_encode')):
+                        z = model.ae_encode(tensor_in)
+                    elif hasattr(model, 'encoder') and callable(getattr(model, 'encoder')):
+                        z = model.encoder(tensor_in)
+                    else:
+                        # Final fallback: treat the model itself as a callable forward pass
+                        z = model(tensor_in)
+                    
                     z_mean = z.mean(dim=-1).squeeze().cpu().numpy()
 
                 event.set_feature(cls(value=z_mean))
@@ -77,6 +92,25 @@ class BaseLatentFeature(AnalyzableFeature):
 
     def as_max_compatible(self) -> List[float]:
         return self._value.tolist()
+
+    @classmethod
+    def extract_from_audio_block(cls, audio_block: np.ndarray, sr: int = 44100) -> 'BaseLatentFeature':
+        """Encodes a live raw audio numpy array chunk into a latent feature instance on the fly."""
+        model = cls._get_model()
+
+        # Resample if sample rate doesn't match model expected sample rate
+        if sr != cls.MODEL_SR:
+            audio_block = librosa.resample(audio_block, orig_sr=sr, target_sr=cls.MODEL_SR)
+
+        if audio_block.size == 0:
+            z_mean = np.zeros(128, dtype=np.float32) # match your latent dim size
+        else:
+            with torch.no_grad():
+                # Shape: (batch=1, channels=1, samples)
+                tensor_in = torch.from_numpy(audio_block).float().reshape(1, 1, -1)
+                z = model.encode(tensor_in)
+                z_mean = z.mean(dim=-1).squeeze().cpu().numpy()
+        return cls(value=z_mean)
 
 
 class RaveLatent(BaseLatentFeature):

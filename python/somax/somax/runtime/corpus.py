@@ -37,7 +37,7 @@ E = TypeVar('E', bound=CorpusEvent)
 
 
 class CorpusUnpickler(pickle.Unpickler):
-    safe_modules = ['logging', 'numpy.core.multiarray', 'numpy']
+    safe_modules = ['logging', 'numpy.core.multiarray', 'numpy._core.multiarray', 'numpy']
     safe_builtins = ['range', 'complex', 'set', 'frozenset', 'slice', 'getattr']
     safe_somax_modules = ['somax.runtime', 'somax.features', 'somax.corpus_builder', 'somax.scheduler']
 
