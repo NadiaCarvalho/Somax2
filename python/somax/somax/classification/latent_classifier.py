@@ -1,83 +1,113 @@
-from abc import ABC
-from typing import List, Tuple, Type, Union
+from typing import List, Tuple, Type
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 
 from somax.classification.classifier import FeatureClassifier
 from somax.features.feature import CorpusFeature
-from somax.features.feature_value import FeatureValue
 from somax.runtime.corpus import Corpus
 from somax.runtime.corpus_event import CorpusEvent
-from somax.runtime.exceptions import TransformError, ClassificationError
-from somax.runtime.influence import AbstractInfluence, CorpusInfluence, FeatureInfluence
-from somax.runtime.label import IntLabel, AbstractLabel
+from somax.runtime.exceptions import ClassificationError
+from somax.runtime.influence import AbstractInfluence, FeatureInfluence, CorpusInfluence
+from somax.runtime.label import IntLabel
+from somax.runtime.parameter import Parameter
 from somax.runtime.transform_handler import TransformHandler
-from somax.runtime.transforms import AbstractTransform
+from somax.runtime.transforms import AbstractTransform, NoTransform
+
 
 class LatentSpaceClassifier(FeatureClassifier):
-    """
-    Classifies audio events based on the latent space of models like RAVE or audio codecs.
-    """
+    """Clusters continuous RAVE/AFTER latent vectors into discrete IntLabels."""
+
     def __init__(self, 
-                 midi_feature_type: Type[CorpusFeature], 
-                 audio_feature_type: Type[CorpusFeature], 
-                 n_clusters: int = 64):
-        super().__init__(midi_feature_type=midi_feature_type, audio_feature_type=audio_feature_type)
-        self.n_clusters = n_clusters
-        self._kmeans: KMeans = KMeans(n_clusters=self.n_clusters, n_init='auto')
-        self._is_fitted = False
-
-    @staticmethod
-    def supports(descriptor: Union[Type[CorpusFeature], Type[AbstractLabel]]) -> bool:
-        # Check if the feature matches your latent feature type
-        return issubclass(descriptor, AudioLatent)
-
-    def cluster(self, corpus: Corpus) -> None:
-        """ Fits cluster centers on the corpus latent vectors during analysis time. """
-        vectors = []
-        for event in corpus.events:
-            try:
-                val = self.get_event_feature(event).value()
-                vectors.append(val)
-            except ClassificationError:
-                continue
+                 feature_type: Type[CorpusFeature], 
+                 num_clusters: int = 32, 
+                 **kwargs):
+        # Pass the feature type to both MIDI and audio slots so base validation passes, 
+        # or pass None/default if your base classifier permits it.
+        super().__init__(midi_feature_type=feature_type, 
+                         audio_feature_type=feature_type,
+                         **kwargs)
         
-        if vectors:
-            data = np.vstack(vectors)
-            # Ensure proper dimensionality (e.g., if latents are time-series, pool/mean them first)
-            if data.ndim > 2:
-                data = np.mean(data, axis=1) 
-            self._kmeans.fit(data)
-            self._is_fitted = True
+        self.num_clusters = Parameter(
+            default_value=num_clusters, 
+            min_value=2, 
+            max_value=512, 
+            type_str="int", 
+            description="Number of clusters in latent space."
+        )
+        self._centroids: np.ndarray = np.empty(0)
+        self._parse_parameters()
+
+    def _set_num_clusters(self, n: int) -> None:
+        self.num_clusters.value = n
+
+    def _supports_descriptor_of(self, descriptor_or_corpus) -> bool:
+        """Determines if the given corpus or feature type is supported."""
+        target_type = getattr(self, "audio_feature_type", getattr(self, "_audio_feature_type", None))
+        
+        if isinstance(descriptor_or_corpus, Corpus):
+            return target_type is not None and descriptor_or_corpus.has_feature(target_type)
+        elif isinstance(descriptor_or_corpus, type) and issubclass(descriptor_or_corpus, CorpusFeature):
+            # Allow RaveLatent / AfterLatent for both MIDI and audio validator slots
+            return True
+        return True
+
+    def supports(self, descriptor_or_corpus) -> bool:
+        """Called by FeatureClassifier to check compatibility with a corpus or feature type."""
+        return self._supports_descriptor_of(descriptor_or_corpus)
+
+    def _is_eligible_for(self, corpus: Corpus) -> bool:
+        return self._supports_descriptor_of(corpus)
+
+    def cluster(self, corpus: Corpus, **kwargs) -> None:
+        """Computes centroids from the corpus's latent vectors."""
+        feature_type = getattr(self, "audio_feature_type", getattr(self, "_audio_feature_type", None))
+        if feature_type is None:
+            raise ClassificationError("No audio feature type configured for LatentSpaceClassifier.")
+
+        latents: List[np.ndarray] = [
+            event.get_feature(feature_type).value() 
+            for event in corpus.events
+        ]
+        X = np.stack(latents, axis=0)  # shape: (N_events, latent_dim)
+
+        n_clusters = min(self.num_clusters.value, len(corpus.events))
+        kmeans = MiniBatchKMeans(n_clusters=n_clusters, random_state=42, n_init="auto")
+        kmeans.fit(X)
+        self._centroids = kmeans.cluster_centers_  # shape: (n_clusters, latent_dim)
 
     def classify_corpus(self, corpus: Corpus) -> List[IntLabel]:
-        if not self._is_fitted:
-            self.cluster(corpus)
+        self.cluster(corpus)
         return [self.classify_event(event) for event in corpus.events]
 
     def classify_event(self, event: CorpusEvent) -> IntLabel:
-        feature: FeatureValue = self.get_event_feature(event)
-        vec = feature.value().reshape(1, -1)
-        cluster_id = self._kmeans.predict(vec)[0]
-        return IntLabel(int(cluster_id))
+        latent_vec = event.get_feature(self._audio_feature_type).value()
+        return self._quantize(latent_vec)
 
     def classify_influence(self, influence: AbstractInfluence) -> List[Tuple[IntLabel, AbstractTransform]]:
-        if isinstance(influence, FeatureInfluence) and isinstance(influence.feature, AudioLatent):
-            vec = influence.feature.value().reshape(1, -1)
+        if isinstance(influence, FeatureInfluence):
+            if not isinstance(influence.feature, (self._midi_feature_type, self._audio_feature_type)):
+                raise ClassificationError(
+                    f"Feature {influence.feature} is not compatible with {self}."
+                )
+            latent_vec = np.asarray(influence.feature.value(), dtype=np.float32)
         elif isinstance(influence, CorpusInfluence):
-            vec = self.get_event_feature(influence.corpus_event).value().reshape(1, -1)
+            latent_vec = influence.corpus_event.get_feature(self._audio_feature_type).value()
         else:
-            raise ClassificationError(f"Influence does not have a valid latent feature for {self}")
+            raise ClassificationError(f"Influence {influence} could not be classified by {self}.")
 
-        cluster_id = int(self._kmeans.predict(vec)[0])
-        return [(IntLabel(cluster_id), t) for t in self._transforms]
+        label = self._quantize(latent_vec)
+        return [(label, NoTransform())]
+
+    def _quantize(self, latent_vec: np.ndarray) -> IntLabel:
+        if self._centroids.size == 0:
+            raise ClassificationError("LatentSpaceClassifier has not been clustered on a corpus yet.")
+        distances = np.linalg.norm(self._centroids - latent_vec.reshape(1, -1), axis=1)
+        best_cluster = int(np.argmin(distances))
+        return IntLabel(best_cluster)
 
     def clear(self) -> None:
-        # Reset runtime states if needed
         pass
 
     def update_transforms(self, transform_handler: TransformHandler) -> List[AbstractTransform]:
-        self._transforms = transform_handler.get_all_valid_transforms()
-        if not self._transforms:
-            raise TransformError(f"No applicable transform exists in classifier {self.__class__}.")
+        self._transforms = [transform_handler.get_transform(0)]  # NoTransform
         return self._transforms

@@ -1,15 +1,97 @@
+from typing import List, Dict, Any, Optional
 import numpy as np
+import torch
+import librosa
 
-from somax.features.feature import CorpusFeature
-from somax.features.feature_value import FeatureValue
+from somax.corpus_builder.metadata import Metadata, AudioMetadata
+from somax.features.feature import AnalyzableFeature, CorpusFeature
+from somax.runtime.corpus_event import CorpusEvent, AudioCorpusEvent
+from somax.runtime.exceptions import FeatureError
 
-class LatentVectorValue(FeatureValue):
-    def __init__(self, value: np.ndarray):
-        self._value = value.astype(np.float32)
+
+class BaseLatentFeature(AnalyzableFeature):
+    """Base class for Neural Audio Autoencoder (RAVE / AFTER) latent vectors."""
     
+    MODEL_PATH: Optional[str] = None 
+    MODEL_SR: int = 44100
+    _model: Optional[torch.jit.ScriptModule] = None
+
+    def __init__(self, value: np.ndarray):
+        super().__init__(value=value)
+
+    @classmethod
+    def _get_model(cls) -> torch.jit.ScriptModule:
+        if cls._model is None:
+            if cls.MODEL_PATH is None:
+                raise FeatureError(f"No TorchScript model path configured for {cls.__name__}")
+            try:
+                cls._model = torch.jit.load(cls.MODEL_PATH, map_location="cpu")
+                cls._model.eval()
+            except Exception as e:
+                raise FeatureError(f"Failed to load model at '{cls.MODEL_PATH}': {e}")
+        return cls._model
+
+    @classmethod
+    def analyze(cls, events: List[CorpusEvent], metadata: Metadata) -> List[CorpusEvent]:
+        if not cls._valid_events(events, metadata):
+            raise FeatureError(f"Feature '{cls.__name__}' only supports AudioCorpus")
+
+        audio_metadata: AudioMetadata = metadata  # type: ignore
+        model = cls._get_model()
+
+        y = audio_metadata.foreground_data
+        if audio_metadata.sr != cls.MODEL_SR:
+            y = librosa.resample(y, orig_sr=audio_metadata.sr, target_sr=cls.MODEL_SR)
+
+        with torch.no_grad():
+            for event in events:  # type: AudioCorpusEvent
+                start_sample = int(event.onset * cls.MODEL_SR)
+                end_sample = int((event.onset + event.duration) * cls.MODEL_SR)
+                slice_audio = y[start_sample:end_sample]
+
+                if slice_audio.size == 0:
+                    # Fallback to zeros if slice is empty
+                    z_mean = np.zeros(16, dtype=np.float32)
+                else:
+                    tensor_in = torch.from_numpy(slice_audio).float().reshape(1, 1, -1)
+                    z = model.encode(tensor_in)
+                    z_mean = z.mean(dim=-1).squeeze().cpu().numpy()
+
+                event.set_feature(cls(value=z_mean))
+
+        return events
+
+    @classmethod
+    def _valid_events(cls, events: List[CorpusEvent], metadata: Metadata) -> bool:
+        return isinstance(metadata, AudioMetadata) and all(isinstance(e, AudioCorpusEvent) for e in events)
+
+    @classmethod
+    def decode(cls, trait_dict: Dict[str, Any]) -> 'CorpusFeature':
+        return cls(value=np.asarray(trait_dict[cls.encode_keyword()], dtype=np.float32))
+
+    def encode(self) -> Dict[str, Any]:
+        return {self.encode_keyword(): self._value.tolist()}
+
     def value(self) -> np.ndarray:
         return self._value
 
-class AudioLatent(CorpusFeature):
-    # Define how it parses or holds your model's latent vectors
-    pass
+    def as_max_compatible(self) -> List[float]:
+        return self._value.tolist()
+
+
+class RaveLatent(BaseLatentFeature):
+    MODEL_PATH = "models/rave-models/sol_full.ts"
+    MODEL_SR = 44100
+
+    @staticmethod
+    def keyword() -> str:
+        return "rave"
+
+
+class AfterLatent(BaseLatentFeature):
+    MODEL_PATH = "models/after-models/afterv2.audio.orchestral.ts"
+    MODEL_SR = 44100
+
+    @staticmethod
+    def keyword() -> str:
+        return "after"
