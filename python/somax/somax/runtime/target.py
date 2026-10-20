@@ -33,6 +33,7 @@ class SimpleOscTarget(Target):
         self._max_formatter: MaxFormatter = MaxFormatter()
 
     def send(self, keyword: Union[str, List[str]], content: Any, **_kwargs):
+        print(f"OUTBOUND OSC -> Address: {self.address} | Keyword: {keyword} | Content: {content}", flush=True)
         if isinstance(keyword, list):
             self._client.send(self.address, [*keyword, content])
         else:

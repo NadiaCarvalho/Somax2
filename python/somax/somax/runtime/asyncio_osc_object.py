@@ -49,6 +49,8 @@ class AsyncioOscObject(Caller, ABC):
         transport.close()
 
     def __process_osc(self, _address, *args):
+        print(f"DEBUG OSC RECEIVED -> Address: {_address}, Args: {args}")
+
         args_str: str = MaxFormatter.format_as_string(*args)
         try:
             self.call(args_str)

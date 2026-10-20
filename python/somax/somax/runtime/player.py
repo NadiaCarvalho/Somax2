@@ -140,6 +140,9 @@ class Player(Parametric, ContentAware):
              _beat_phase: float,
              _tempo: float) -> Optional[tuple[CorpusEvent, AbstractTransform]]:
         # TODO: Step mechanism does not respect taboos since it doesn't use filters at all.
+        
+        self.logger.info('STEP')
+
         if not self.is_enabled():
             return None
 

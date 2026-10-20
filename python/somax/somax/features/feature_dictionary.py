@@ -6,9 +6,10 @@ from somax.classification import PitchClassClassifier, PitchClassifier
 from somax.classification.chroma_classifiers import SomChromaClassifier
 from somax.classification.classifier import FeatureClassifier
 from somax.classification.omax_mfcc_classifier import OmaxMfccClassifier
+from somax.classification.latent_classifier import LatentSpaceClassifier
 from somax.features import (YinDiscretePitch, OnsetChroma, MeanChroma, TopNote, BassNote, VirtualFundamental,
                             RuntimeIntegerPitch, OctaveBands, TotalEnergyDb, PeakEnergyDb, VerticalDensity,
-                            RuntimeChroma, Tempo, BeatPhase)
+                            RuntimeChroma, Tempo, BeatPhase, RaveLatent)
 from somax.features.feature import CorpusFeature, AbstractFeature
 from somax.features.mfcc_features import Mfcc, RuntimeMfcc
 
@@ -209,7 +210,14 @@ class FeatureDictionary:
 
         "beat": FeatureSpecification.singular(feature=BeatPhase,
                                               flags=[FeatureKeywordFlags.HIDDEN],
-                                              default_classifier=None)
+                                              default_classifier=None),
+
+        "latent_feature": FeatureSpecification.audio_only(
+            audio_feature=RaveLatent,
+            influence_feature=RaveLatent,  # or a Runtime equivalent if you use one for live streaming
+            flags=[FeatureKeywordFlags.MAIN_KEYWORD],
+            default_classifier=LatentSpaceClassifier  # or a custom FeatureClassifier if you built one
+        )
     }
 
     @staticmethod
