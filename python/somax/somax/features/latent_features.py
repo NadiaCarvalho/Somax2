@@ -119,7 +119,7 @@ class RaveLatent(BaseLatentFeature):
 
     @staticmethod
     def keyword() -> str:
-        return "rave"
+        return "latent"
 
 
 class AfterLatent(BaseLatentFeature):

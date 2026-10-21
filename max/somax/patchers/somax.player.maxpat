@@ -9,7 +9,7 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 0.0, 66.0, 920.0, 760.0 ],
+        "rect": [ 0.0, 58.0, 1440.0, 842.0 ],
         "openinpresentation": 1,
         "toolbarvisible": 0,
         "integercoordinates": 1,
@@ -241,6 +241,7 @@
                 "box": {
                     "angle": 270.0,
                     "bgcolor": [ 0.2, 0.2, 0.2, 0.82 ],
+                    "hidden": 1,
                     "id": "obj-1244",
                     "ignoreclick": 0,
                     "maxclass": "panel",
@@ -258,6 +259,7 @@
                 "box": {
                     "angle": 270.0,
                     "bgcolor": [ 0.2, 0.2, 0.2, 0.82 ],
+                    "hidden": 1,
                     "id": "obj-1246",
                     "ignoreclick": 0,
                     "maxclass": "panel",
@@ -275,6 +277,7 @@
                 "box": {
                     "fontface": 1,
                     "fontsize": 10.0,
+                    "hidden": 1,
                     "id": "obj-1249",
                     "linecount": 2,
                     "maxclass": "comment",
@@ -292,6 +295,7 @@
                 "box": {
                     "angle": 270.0,
                     "bgcolor": [ 0.125490196078431, 0.125490196078431, 0.125490196078431, 1.0 ],
+                    "hidden": 1,
                     "id": "obj-1250",
                     "ignoreclick": 0,
                     "maxclass": "panel",
@@ -1307,7 +1311,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 6425.0, 3402.0, 188.0, 40.0 ],
+                    "patching_rect": [ 6405.0, 3469.0, 188.0, 40.0 ],
                     "presentation": 1,
                     "presentation_linecount": 4,
                     "presentation_rect": [ 902.0, 308.0, 119.0, 51.0 ],
@@ -1426,7 +1430,7 @@
                     "mode": 0,
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 6425.0, 3399.0, 188.0, 21.0 ],
+                    "patching_rect": [ 6405.0, 3515.0, 188.0, 21.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 902.0, 58.0, 119.0, 248.0 ],
                     "proportion": 0.5
@@ -1913,6 +1917,7 @@
                 "box": {
                     "angle": 270.0,
                     "bgcolor": [ 0.368627450980392, 0.368627450980392, 0.368627450980392, 0.82 ],
+                    "hidden": 1,
                     "id": "obj-1169",
                     "ignoreclick": 0,
                     "maxclass": "panel",
@@ -1930,6 +1935,7 @@
                 "box": {
                     "angle": 270.0,
                     "bgcolor": [ 0.368627450980392, 0.368627450980392, 0.368627450980392, 0.82 ],
+                    "hidden": 1,
                     "id": "obj-1170",
                     "ignoreclick": 0,
                     "maxclass": "panel",
@@ -2366,7 +2372,7 @@
                     "numoutlets": 4,
                     "outlettype": [ "", "", "", "" ],
                     "patching_rect": [ 4812.0, 3418.0, 249.0, 35.0 ],
-                    "text": "somax.atom selflatent @selfinfluenced 0 @uniquename 0 @descriptor latent_feature",
+                    "text": "somax.atom selflatent @selfinfluenced 1 @uniquename 0 @descriptor latent_feature",
                     "varname": "unused[6]"
                 }
             },
@@ -4314,7 +4320,7 @@
                     "patching_rect": [ 3375.0, 4077.0, 49.0, 18.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 315.0, 550.0, 27.0, 18.0 ],
-                    "text": "89",
+                    "text": "20",
                     "textcolor": [ 0.647058823529412, 0.913725490196078, 0.909803921568627, 1.0 ],
                     "textjustification": 1
                 }
@@ -15197,7 +15203,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 0.0, 640.0, 480.0 ],
+                        "rect": [ 59.0, 111.0, 640.0, 480.0 ],
                         "boxes": [
                             {
                                 "box": {
@@ -27712,6 +27718,7 @@
                     "fontface": 1,
                     "fontsize": 10.0,
                     "gradient": 1,
+                    "hidden": 1,
                     "id": "obj-604",
                     "ignoreclick": 1,
                     "maxclass": "message",
@@ -28504,6 +28511,7 @@
                     "fontface": 1,
                     "fontsize": 10.0,
                     "gradient": 1,
+                    "hidden": 1,
                     "id": "obj-364",
                     "ignoreclick": 1,
                     "maxclass": "message",
@@ -30167,7 +30175,7 @@
                     "patching_rect": [ 3847.547470416909, 4245.0, 49.0, 18.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 387.7276244323905, 659.4260269567377, 36.00000023841858, 18.0 ],
-                    "text": "0.91",
+                    "text": "0.00",
                     "textcolor": [ 0.717647058823529, 0.717647058823529, 0.717647058823529, 1.0 ],
                     "textjustification": 1
                 }
@@ -31126,7 +31134,7 @@
                     "patching_rect": [ 3238.0, 4077.0, 49.0, 18.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 286.0, 550.0, 27.0, 18.0 ],
-                    "text": "56",
+                    "text": "136",
                     "textcolor": [ 0.827450980392157, 0.423529411764706, 0.996078431372549, 1.0 ],
                     "textjustification": 1
                 }
@@ -32607,20 +32615,20 @@
                     "outlettype": [ "" ],
                     "patching_rect": [ 1408.8333333333335, 22.439567114741294, 313.0, 35.0 ],
                     "priority": {
-                        "__exp_autojumpactivate": 60,
                         "__exp_autojumpenable": 50,
-                        "__exp_autojumpforcejump": 60,
                         "__exp_durationenable": 50,
-                        "__exp_durationmu": 60,
-                        "__exp_durationsigma": 60,
                         "__exp_melodicpitchfromchords": 50,
                         "__exp_numnotesenable": 50,
-                        "__exp_numnotesmu": 60,
-                        "__exp_numnotessigma": 60,
-                        "__exp_octavebands": 60,
                         "__exp_octavebandsenable": 50,
                         "__exp_selfpitchfromchords": 50,
                         "__exp_tempoconsistencyenable": 50,
+                        "__exp_autojumpactivate": 60,
+                        "__exp_autojumpforcejump": 60,
+                        "__exp_durationmu": 60,
+                        "__exp_durationsigma": 60,
+                        "__exp_numnotesmu": 60,
+                        "__exp_numnotessigma": 60,
+                        "__exp_octavebands": 60,
                         "__exp_tempoconsistencylen": 60,
                         "__exp_tempoconsistencysigma": 60
                     },
@@ -32676,7 +32684,7 @@
                         "__exp_tempoconsistencylen": [ 5 ],
                         "__exp_tempoconsistencysigma": [ 5 ],
                         "_transpositions": [ 5, 0, 1.0 ],
-                        "_weights": [ 0.25, 0.25, 0.25, 1.0, 0.5, 0.5 ],
+                        "_weights": [ 0.25, 0.25, 0.25, 0.5934949832969193, 0.34290969902789703, 0.5 ],
                         "artificialmidities": [ 0 ],
                         "continuity": [ 1.5 ],
                         "cut": [ 1 ],
@@ -32689,7 +32697,7 @@
                         "harmonicngramorder": [ 2 ],
                         "harmonicpeakdecay": [ 3.001 ],
                         "melodicenable": [ 1 ],
-                        "melodicmod12": [ 0 ],
+                        "melodicmod12": [ 1 ],
                         "melodicngramorder": [ 2 ],
                         "melodicpeakdecay": [ 2.001 ],
                         "mfccdistance": [ 5.0 ],
@@ -32698,9 +32706,9 @@
                         "mfccenable": [ 1 ],
                         "mfccenable[1]": [ 1 ],
                         "mfccngramorder": [ 2 ],
-                        "mfccngramorder[1]": [ 2 ],
+                        "mfccngramorder[1]": [ 1 ],
                         "mfccpeakdecay": [ 3.001 ],
-                        "mfccpeakdecay[1]": [ 6.666666666666666 ],
+                        "mfccpeakdecay[1]": [ 3.001 ],
                         "mfccweights": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
                         "mididurations": [ "Sustained" ],
                         "midinotebynote": [ 1 ],
@@ -32709,7 +32717,7 @@
                         "outputprobability": [ 1.0 ],
                         "playingmode": [ 0 ],
                         "pollpeaks": [ 1 ],
-                        "quality": [ 0.0 ],
+                        "quality": [ 1.0 ],
                         "recombine": [ 1 ],
                         "resetinfluences": [ 0.0 ],
                         "selfharmonicenable": [ 1 ],
@@ -32722,12 +32730,12 @@
                         "selfmfccngramorder": [ 2 ],
                         "selfmfccngramorder[1]": [ 2 ],
                         "selfmfccpeakdecay": [ 3.001 ],
-                        "selfmfccpeakdecay[1]": [ 8.0 ],
-                        "selfmod12": [ 0 ],
+                        "selfmfccpeakdecay[1]": [ 2.0 ],
+                        "selfmod12": [ 1 ],
                         "selfngramorder": [ 2 ],
                         "selfpeakdecay": [ 2.001 ],
                         "sparse": [ 0 ],
-                        "tabooduration": [ 0 ],
+                        "tabooduration": [ 1 ],
                         "timeout": [ 2.0 ],
                         "timeoutenable": [ 1 ],
                         "timeoutrelease": [ 0 ],
@@ -33072,7 +33080,7 @@
                     "maxclass": "inlet",
                     "numinlets": 0,
                     "numoutlets": 1,
-                    "outlettype": [ "int" ],
+                    "outlettype": [ "" ],
                     "patching_rect": [ 18.0, 22.439567114741294, 30.0, 30.0 ]
                 }
             },
@@ -33087,7 +33095,7 @@
                     "patching_rect": [ 3034.56734634556, 4077.4751917657723, 49.0, 18.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 257.0, 550.0, 27.0, 18.0 ],
-                    "text": "60",
+                    "text": "85",
                     "textcolor": [ 0.481437705647327, 0.846666309931507, 0.361908344245232, 1.0 ],
                     "textjustification": 1
                 }
@@ -33135,7 +33143,7 @@
                     "patching_rect": [ 2881.990073618287, 4078.4751917657723, 49.0, 18.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 290.9776245516, 659.9679762308627, 49.33333423733711, 18.0 ],
-                    "text": "118",
+                    "text": "0",
                     "textcolor": [ 0.717647058823529, 0.717647058823529, 0.717647058823529, 1.0 ]
                 }
             },
@@ -33604,7 +33612,7 @@
                     "patching_rect": [ 1965.0, 89.0, 180.0, 27.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 21.41666666666697, 11.5, 401.10262443239094, 27.0 ],
-                    "text": "Player_2223",
+                    "text": "Player",
                     "textcolor": [ 0.717647058823529, 0.717647058823529, 0.717647058823529, 1.0 ],
                     "textjustification": 1
                 }
@@ -35267,7 +35275,7 @@
                     "patching_rect": [ 1764.0695170281506, 4243.907651035666, 44.0, 24.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 65.41666666666697, 644.1346422617465, 70.0, 24.0 ],
-                    "text": "462",
+                    "text": "297",
                     "textcolor": [ 0.717647058823529, 0.717647058823529, 0.717647058823529, 1.0 ]
                 }
             },

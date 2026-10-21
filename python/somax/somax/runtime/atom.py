@@ -88,6 +88,9 @@ class Atom(Parametric, ContentAware):
         self._memory_space.model(self._corpus, labels)
         self._activity_pattern.corpus = self._corpus
 
+        print(f'{self.name} MEMORY MODEL STRUCTURE SPACE: {self._memory_space._structured_data}')
+
+
     def reclassify(self) -> None:
         self.read_corpus(self._corpus)
 

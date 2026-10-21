@@ -72,6 +72,7 @@ class LatentSpaceClassifier(FeatureClassifier):
     def classify_event(self, event: CorpusEvent) -> IntLabel:
         feature: FeatureValue = self.get_event_feature(event)
         latent_vec = np.asarray(feature.value(), dtype=np.float32)
+        print(f'LATENT FEATURE: {latent_vec}\n SELF QUANTIZE {self._quantize(latent_vec)}')
         return self._quantize(latent_vec)
 
     def classify_influence(self, influence: AbstractInfluence) -> List[Tuple[IntLabel, AbstractTransform]]:
