@@ -6,7 +6,7 @@ from somax.classification import PitchClassClassifier, PitchClassifier
 from somax.classification.chroma_classifiers import SomChromaClassifier
 from somax.classification.classifier import FeatureClassifier
 from somax.classification.omax_mfcc_classifier import OmaxMfccClassifier
-from somax.classification.latent_classifier import LatentSpaceClassifier
+from somax.classification.latent_classifier import RuntimeRaveLatentClassifier
 from somax.features import (YinDiscretePitch, OnsetChroma, MeanChroma, TopNote, BassNote, VirtualFundamental,
                             RuntimeIntegerPitch, OctaveBands, TotalEnergyDb, PeakEnergyDb, VerticalDensity,
                             RuntimeChroma, Tempo, BeatPhase, RaveLatent, RuntimeRaveLatent)
@@ -216,7 +216,7 @@ class FeatureDictionary:
             audio_feature=RaveLatent,
             influence_feature=RuntimeRaveLatent,  # or a Runtime equivalent if you use one for live streaming
             flags=[FeatureKeywordFlags.MAIN_KEYWORD],
-            default_classifier=LatentSpaceClassifier  # or a custom FeatureClassifier if you built one
+            default_classifier=RuntimeRaveLatentClassifier  # or a custom FeatureClassifier if you built one
         )
     }
 
