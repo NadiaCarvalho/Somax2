@@ -231,4 +231,5 @@ max/somax/state/*.json
 *.pickle
 
 models
+logs
 Notes.md
