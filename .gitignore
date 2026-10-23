@@ -229,3 +229,8 @@ python/somax/log/*.log
 python/somax/temp
 max/somax/state/*.json
 *.pickle
+
+
+# My Things at https://github.com/NadiaCarvalho/Somax2
+models
+Notes.md
